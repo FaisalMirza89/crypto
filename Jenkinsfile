@@ -2,33 +2,48 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'kubesarforaj/crypto-web'
-        DOCKER_TAG = 'latest'
+        DOCKER_IMAGE = "kubesarforaj/crypto-web"
+        DOCKER_TAG = "latest"
+        SONARQUBE_ENV = "SonarQube" // Update if your SonarQube server is named differently
     }
 
     stages {
-        stage('Clone repository') {
+        stage('Checkout') {
             steps {
                 git url: 'https://github.com/sarforajs/crypto.git'
             }
         }
 
+        stage('Set up JDK') {
+            tools {
+                jdk 'jdk17' // Make sure this is configured in Jenkins tools
+            }
+        }
+
         stage('Build with Maven') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn clean package -DskipTests=false'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('SonarQube Analysis') {
+            environment {
+                scannerHome = tool 'SonarScanner' // Update if you named it differently in Jenkins
+            }
             steps {
-                sh 'docker build -t $DOCKER_IMAGE:$DOCKER_TAG .'
+                withSonarQubeEnv("${SONARQUBE_ENV}") {
+                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=CryptoWebApp -Dsonar.sources=src -Dsonar.java.binaries=target/classes"
+                }
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Docker Build & Push') {
             steps {
-                withDockerRegistry([credentialsId: 'dockerhub-creds', url: '']) {
-                    sh 'docker push $DOCKER_IMAGE:$DOCKER_TAG'
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
+                        sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                        sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    }
                 }
             }
         }
@@ -36,10 +51,11 @@ pipeline {
 
     post {
         success {
-            echo '✅ Build and push successful!'
+            echo "✅ Build and Docker push succeeded!"
         }
         failure {
-            echo '❌ Build failed!'
+            echo "❌ Build failed."
         }
     }
 }
+
