@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crypto File Encrypt/Decrypt</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>🔐 Encrypt / Decrypt File</h2>
+        <form method="POST" action="/api/process" enctype="multipart/form-data">
+            <label for="file">Select file:</label>
+            <input type="file" name="file" id="file" required>
+
+            <label for="action">Action:</label>
+            <select name="action" id="action" required>
+                <option value="encrypt">Encrypt</option>
+                <option value="decrypt">Decrypt</option>
+            </select>
+
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" required>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
+
