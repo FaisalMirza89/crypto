@@ -4,12 +4,13 @@ pipeline {
     tools {
         jdk 'jdk17'           // configured JDK name in Jenkins
         maven 'maven3'        // configured Maven name in Jenkins
+        // SonarScanner is accessed via tool in stage
     }
 
     environment {
         DOCKER_IMAGE = "kubesarforaj/crypto-web"
         DOCKER_TAG = "latest"
-        SONARQUBE_ENV = "SonarQube"
+        SONARQUBE_ENV = "SonarQube"        // Name of SonarQube server in Configure System
     }
 
     stages {
@@ -64,36 +65,31 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 sh '''
-            wget https://github.com/aquasecurity/trivy/releases/download/v0.63.0/trivy_0.63.0_Linux-64bit.tar.gz
-            tar zxvf trivy_0.63.0_Linux-64bit.tar.gz
-            mv trivy /usr/local/bin/
-            trivy image kubesarforaj/crypto-web:latest > trivy-report.txt
+                    wget https://github.com/aquasecurity/trivy/releases/download/v0.63.0/trivy_0.63.0_Linux-64bit.tar.gz
+                    tar zxvf trivy_0.63.0_Linux-64bit.tar.gz
+                    ./trivy image ${DOCKER_IMAGE}:${DOCKER_TAG} > trivy-report.txt
                 '''
-        archiveArtifacts artifacts: 'trivy-report.txt', fingerprint: true
-    }
-}
-
+                archiveArtifacts artifacts: 'trivy-report.txt', fingerprint: true
+            }
+        }
 
         stage('Docker Scout Scan') {
             steps {
-                sh 'docker scout quickview kubesarforaj/crypto-web:latest > scout-report.txt || echo "Scout scan skipped (Docker Scout not available)"'
+                sh 'docker scout quickview ${DOCKER_IMAGE}:${DOCKER_TAG} > scout-report.txt || echo "Scout scan skipped (Docker Scout not available)"'
                 archiveArtifacts artifacts: 'scout-report.txt', fingerprint: true
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                script {
-                    sh 'docker rm -f crypto-web || true'
-                    sh "docker run -d --name crypto-web -p 9090:8080 ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                }
+                sh "docker run -d -p 9090:8080 ${DOCKER_IMAGE}:${DOCKER_TAG}"
             }
         }
     }
 
     post {
         success {
-            echo "✅ Build and Docker push succeeded!"
+            echo "✅ Build, scans, and Docker push succeeded!"
             archiveArtifacts artifacts: 'target/dependency-check-report.html', fingerprint: true
         }
         failure {
