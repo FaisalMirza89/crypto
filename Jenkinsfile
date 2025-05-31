@@ -1,22 +1,21 @@
 pipeline {
     agent any
 
+    tools {
+        jdk 'jdk17'  // Moved here from stage
+        maven 'maven3'  // Optional: if you want Maven tool configured in Jenkins
+    }
+
     environment {
         DOCKER_IMAGE = "kubesarforaj/crypto-web"
         DOCKER_TAG = "latest"
-        SONARQUBE_ENV = "SonarQube" // Update if your SonarQube server is named differently
+        SONARQUBE_ENV = "SonarQube"
     }
 
     stages {
         stage('Checkout') {
             steps {
                 git url: 'https://github.com/sarforajs/crypto.git'
-            }
-        }
-
-        stage('Set up JDK') {
-            tools {
-                jdk 'jdk17' // Make sure this is configured in Jenkins tools
             }
         }
 
@@ -28,7 +27,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             environment {
-                scannerHome = tool 'SonarScanner' // Update if you named it differently in Jenkins
+                scannerHome = tool 'SonarScanner'
             }
             steps {
                 withSonarQubeEnv("${SONARQUBE_ENV}") {
@@ -58,4 +57,3 @@ pipeline {
         }
     }
 }
-
