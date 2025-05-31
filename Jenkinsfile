@@ -4,13 +4,12 @@ pipeline {
     tools {
         jdk 'jdk17'           // configured JDK name in Jenkins
         maven 'maven3'        // configured Maven name in Jenkins
-        // SonarScanner is accessed via tool in stage
     }
 
     environment {
         DOCKER_IMAGE = "kubesarforaj/crypto-web"
         DOCKER_TAG = "latest"
-        SONARQUBE_ENV = "SonarQube"        // Name of SonarQube server in Configure System
+        SONARQUBE_ENV = "SonarQube"
     }
 
     stages {
@@ -58,6 +57,34 @@ pipeline {
                         def customImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
                         customImage.push()
                     }
+                }
+            }
+        }
+
+        stage('Trivy Scan') {
+            steps {
+                sh '''
+                    wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.1_Linux-64bit.tar.gz
+                    tar zxvf trivy_0.50.1_Linux-64bit.tar.gz
+                    sudo mv trivy /usr/local/bin/
+                    trivy image kubesarforaj/crypto-web:latest > trivy-report.txt
+                '''
+                archiveArtifacts artifacts: 'trivy-report.txt', fingerprint: true
+            }
+        }
+
+        stage('Docker Scout Scan') {
+            steps {
+                sh 'docker scout quickview kubesarforaj/crypto-web:latest > scout-report.txt || echo "Scout scan skipped (Docker Scout not available)"'
+                archiveArtifacts artifacts: 'scout-report.txt', fingerprint: true
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    sh 'docker rm -f crypto-web || true'
+                    sh "docker run -d --name crypto-web -p 9090:8080 ${DOCKER_IMAGE}:${DOCKER_TAG}"
                 }
             }
         }
