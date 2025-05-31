@@ -64,8 +64,7 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 sh '''
-                    wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.1_Linux-64bit.tar.gz
-                    tar zxvf trivy_0.50.1_Linux-64bit.tar.gz
+                    wget https://github.com/aquasecurity/trivy/releases/download/v0.63.0/trivy_0.63.0_Linux-64bit.tar.gz
                     sudo mv trivy /usr/local/bin/
                     trivy image kubesarforaj/crypto-web:latest > trivy-report.txt
                 '''
