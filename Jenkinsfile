@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk17'  // Moved here from stage
-        maven 'maven3'  // Optional: if you want Maven tool configured in Jenkins
+        jdk 'jdk17'           // configured JDK name in Jenkins
+        maven 'maven3'        // configured Maven name in Jenkins
     }
 
     environment {
         DOCKER_IMAGE = "kubesarforaj/crypto-web"
         DOCKER_TAG = "latest"
-        SONARQUBE_ENV = "SonarQube"
+        SONARQUBE_ENV = "SonarQube"        // Name of SonarQube server in Configure System
     }
 
     stages {
@@ -27,7 +27,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             environment {
-                scannerHome = tool 'SonarScanner'
+                scannerHome = tool 'SonarScanner'  // Name of SonarScanner tool configured in Global Tool Config
             }
             steps {
                 withSonarQubeEnv("${SONARQUBE_ENV}") {
