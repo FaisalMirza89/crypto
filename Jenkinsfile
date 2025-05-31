@@ -4,6 +4,7 @@ pipeline {
     tools {
         jdk 'jdk17'           // configured JDK name in Jenkins
         maven 'maven3'        // configured Maven name in Jenkins
+        // SonarScanner is accessed via tool in stage
     }
 
     environment {
@@ -27,17 +28,17 @@ pipeline {
 
         stage('SonarQube Analysis') {
             environment {
-                scannerHome = tool 'SonarScanner'  // your SonarScanner tool name
+                scannerHome = tool 'SonarScanner'
             }
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv("${SONARQUBE_ENV}") {
                         sh """
-                        ${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=CryptoWebApp \
-                        -Dsonar.sources=src \
-                        -Dsonar.java.binaries=target/classes \
-                        -Dsonar.login=${SONAR_TOKEN}
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=CryptoWebApp \
+                            -Dsonar.sources=src \
+                            -Dsonar.java.binaries=target/classes \
+                            -Dsonar.login=${SONAR_TOKEN}
                         """
                     }
                 }
@@ -48,8 +49,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
-                        sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                        sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                        def customImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                        customImage.push()
                     }
                 }
             }
