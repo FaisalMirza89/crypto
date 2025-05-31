@@ -64,13 +64,15 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 sh '''
-                    wget https://github.com/aquasecurity/trivy/releases/download/v0.63.0/trivy_0.63.0_Linux-64bit.tar.gz
-                    sudo mv trivy /usr/local/bin/
-                    trivy image kubesarforaj/crypto-web:latest > trivy-report.txt
+            wget https://github.com/aquasecurity/trivy/releases/download/v0.63.0/trivy_0.63.0_Linux-64bit.tar.gz
+            tar zxvf trivy_0.63.0_Linux-64bit.tar.gz
+            mv trivy /usr/local/bin/
+            trivy image kubesarforaj/crypto-web:latest > trivy-report.txt
                 '''
-                archiveArtifacts artifacts: 'trivy-report.txt', fingerprint: true
-            }
-        }
+        archiveArtifacts artifacts: 'trivy-report.txt', fingerprint: true
+    }
+}
+
 
         stage('Docker Scout Scan') {
             steps {
