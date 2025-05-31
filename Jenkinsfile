@@ -66,6 +66,7 @@ pipeline {
     post {
         success {
             echo "✅ Build and Docker push succeeded!"
+            archiveArtifacts artifacts: 'target/dependency-check-report.html', fingerprint: true
         }
         failure {
             echo "❌ Build failed."
