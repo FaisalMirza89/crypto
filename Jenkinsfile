@@ -26,6 +26,12 @@ pipeline {
             }
         }
 
+        stage('OWASP Dependency Check') {
+            steps {
+                sh 'mvn org.owasp:dependency-check-maven:check'
+            }
+        }
+
         stage('SonarQube Analysis') {
             environment {
                 scannerHome = tool 'SonarScanner'
