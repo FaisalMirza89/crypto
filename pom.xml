@@ -38,7 +38,8 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-            <!-- OWASP Dependency-Check Plugin -->
+
+            <!-- OWASP Dependency-Check Plugin: generates report at target/dependency-check-report.html -->
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
