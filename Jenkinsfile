@@ -27,11 +27,19 @@ pipeline {
 
         stage('SonarQube Analysis') {
             environment {
-                scannerHome = tool 'SonarScanner'  // Name of SonarScanner tool configured in Global Tool Config
+                scannerHome = tool 'SonarScanner'  // your SonarScanner tool name
             }
             steps {
-                withSonarQubeEnv("${SONARQUBE_ENV}") {
-                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=CryptoWebApp -Dsonar.sources=src -Dsonar.java.binaries=target/classes"
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv("${SONARQUBE_ENV}") {
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=CryptoWebApp \
+                        -Dsonar.sources=src \
+                        -Dsonar.java.binaries=target/classes \
+                        -Dsonar.login=${SONAR_TOKEN}
+                        """
+                    }
                 }
             }
         }
