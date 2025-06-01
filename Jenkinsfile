@@ -93,11 +93,13 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh '''
-                    helm upgrade --install crypto-web helm-chart/ \
-                    --set image.tag=${DOCKER_TAG} \
-                    --set replicaCount=2
-                '''
+                withEnv(['KUBECONFIG=/var/lib/jenkins/.kube/config']) {
+                    sh '''
+                        helm upgrade --install crypto-web helm-chart/ \
+                        --set image.tag=${DOCKER_TAG} \
+                        --set replicaCount=2
+                    '''
+                }
             }
         }
     }
