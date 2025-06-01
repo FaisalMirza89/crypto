@@ -2,15 +2,14 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk17'           // configured JDK name in Jenkins
-        maven 'maven3'        // configured Maven name in Jenkins
-        // SonarScanner is accessed via tool in stage
+        jdk 'jdk17'
+        maven 'maven3'
     }
 
     environment {
         DOCKER_IMAGE = "kubesarforaj/crypto-web"
         DOCKER_TAG = "latest"
-        SONARQUBE_ENV = "SonarQube"        // Name of SonarQube server in Configure System
+        SONARQUBE_ENV = "SonarQube"
     }
 
     stages {
@@ -85,17 +84,17 @@ pipeline {
                 sh "docker run -d -p 9090:8080 ${DOCKER_IMAGE}:${DOCKER_TAG}"
             }
         }
-    }
 
-stage('Deploy to Kubernetes') {
-    steps {
-        sh '''
-            helm upgrade --install crypto-web helm-chart/ \
-            --set image.tag=latest \
-            --set replicaCount=2
-        '''
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                    helm upgrade --install crypto-web helm-chart/ \
+                    --set image.tag=${DOCKER_TAG} \
+                    --set replicaCount=2
+                '''
+            }
+        }
     }
-}
 
     post {
         success {
