@@ -87,6 +87,16 @@ pipeline {
         }
     }
 
+stage('Deploy to Kubernetes') {
+    steps {
+        sh '''
+            helm upgrade --install crypto-web helm-chart/ \
+            --set image.tag=latest \
+            --set replicaCount=2
+        '''
+    }
+}
+
     post {
         success {
             echo "✅ Build, scans, and Docker push succeeded!"
