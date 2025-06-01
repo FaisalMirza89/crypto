@@ -81,7 +81,13 @@ pipeline {
 
         stage('Run Docker Container') {
             steps {
-                sh "docker run -d -p 9090:8080 ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                sh '''
+                    # Stop and remove any container using port 9090
+                    docker ps -q --filter "publish=9090" | xargs -r docker rm -f
+
+                    # Now run new container
+                    docker run -d -p 9090:8080 ${DOCKER_IMAGE}:${DOCKER_TAG}
+                '''
             }
         }
 
