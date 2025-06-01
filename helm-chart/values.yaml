@@ -1,0 +1,12 @@
+replicaCount: 2
+
+image:
+  repository: kubesarforaj/crypto-web
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 9090
+
+resources: {}
