@@ -1,0 +1,5 @@
+apiVersion: v2
+name: crypto-web       # <- This field is mandatory!
+version: 0.1.0
+description: A Helm chart for Crypto Web app
+version: 0.1.0
