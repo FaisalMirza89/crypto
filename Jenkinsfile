@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE = "kubesarforaj/crypto-web"
+        DOCKER_IMAGE = "FaisalMirza89/crypto"
         DOCKER_TAG = "latest"
         SONARQUBE_ENV = "SonarQube"
     }
@@ -15,7 +15,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/sarforajs/crypto.git'
+                git url: 'https://github.com/FaisalMirza89/crypto.git'
             }
         }
 
