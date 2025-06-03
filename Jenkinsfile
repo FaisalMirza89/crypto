@@ -31,21 +31,21 @@ pipeline {
             }
         }
 
-       stage('SonarQube Analysis') {
-    environment {
-        scannerHome = tool 'SonarScanner'
-    }
+     stage('SonarQube Analysis') {
     steps {
-        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-            withSonarQubeEnv("${SONARQUBE_ENV}") {
-                sh '''#!/bin/bash
-                    export PATH=$scannerHome/bin:$PATH
-                    sonar-scanner \
-                        -Dsonar.projectKey=CryptoWebApp \
-                        -Dsonar.sources=src \
-                        -Dsonar.java.binaries=target/classes \
-                        -Dsonar.token=$SONAR_TOKEN
-                '''
+        withSonarQubeEnv("${SONARQUBE_ENV}") {
+            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    sh """
+                        export PATH=${scannerHome}/bin:\$PATH
+                        sonar-scanner \
+                          -Dsonar.projectKey=CryptoWebApp \
+                          -Dsonar.sources=src \
+                          -Dsonar.java.binaries=target/classes \
+                          -Dsonar.token=\$SONAR_TOKEN
+                    """
+                }
             }
         }
     }
