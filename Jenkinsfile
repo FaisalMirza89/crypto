@@ -31,24 +31,26 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            environment {
-                scannerHome = tool 'SonarScanner'
-            }
-            steps {
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    withSonarQubeEnv("${SONARQUBE_ENV}") {
-                        sh """
-                            ${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey=CryptoWebApp \
-                            -Dsonar.sources=src \
-                            -Dsonar.java.binaries=target/classes \
-                            -Dsonar.login=${SONAR_TOKEN}
-                        """
-                    }
-                }
+       stage('SonarQube Analysis') {
+    environment {
+        scannerHome = tool 'SonarScanner'
+    }
+    steps {
+        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+            withSonarQubeEnv("${SONARQUBE_ENV}") {
+                sh '''#!/bin/bash
+                    export PATH=$scannerHome/bin:$PATH
+                    sonar-scanner \
+                        -Dsonar.projectKey=CryptoWebApp \
+                        -Dsonar.sources=src \
+                        -Dsonar.java.binaries=target/classes \
+                        -Dsonar.token=$SONAR_TOKEN
+                '''
             }
         }
+    }
+}
+
 
         stage('Docker Build & Push') {
             steps {
