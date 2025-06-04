@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE = "FaisalMirza89/crypto"
+        DOCKER_IMAGE = "faisalditiss89/crypto"
         DOCKER_TAG = "latest"
         SONARQUBE_ENV = "SonarQube"
     }
