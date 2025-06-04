@@ -10,6 +10,7 @@ pipeline {
         DOCKER_IMAGE = "faisalditiss89/crypto"
         DOCKER_TAG = "latest"
         SONARQUBE_ENV = "SonarQube"
+        PATH = "/usr/local/bin:${env.PATH}"
     }
 
     stages {
@@ -31,26 +32,25 @@ pipeline {
             }
         }
 
-     stage('SonarQube Analysis') {
-    steps {
-        withSonarQubeEnv("${SONARQUBE_ENV}") {
-            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                script {
-                    def scannerHome = tool 'SonarScanner'
-                    sh """
-                        export PATH=${scannerHome}/bin:\$PATH
-                        sonar-scanner \
-                          -Dsonar.projectKey=CryptoWebApp \
-                          -Dsonar.sources=src \
-                          -Dsonar.java.binaries=target/classes \
-                          -Dsonar.token=\$SONAR_TOKEN
-                    """
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv("${SONARQUBE_ENV}") {
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        script {
+                            def scannerHome = tool 'SonarScanner'
+                            sh """
+                                export PATH=${scannerHome}/bin:\$PATH
+                                sonar-scanner \
+                                  -Dsonar.projectKey=CryptoWebApp \
+                                  -Dsonar.sources=src \
+                                  -Dsonar.java.binaries=target/classes \
+                                  -Dsonar.token=\$SONAR_TOKEN
+                            """
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
 
         stage('Docker Build & Push') {
             steps {
